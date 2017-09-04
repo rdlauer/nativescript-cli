@@ -167,6 +167,16 @@ interface ILiveSyncInfo extends IProjectDir, IEnvOptions, IBundle, IRelease, IOp
 	timeout: string;
 }
 
+interface ILiveSyncEventData {
+	deviceIdentifier: string,
+	applicationIdentifier?: string,
+	projectDir: string,
+	syncedFiles?: Object
+	error? : Error,
+	notification?: string,
+	isFullSync?: boolean
+}
+
 interface ILatestAppPackageInstalledSettings extends IDictionary<IDictionary<boolean>> { /* empty */ }
 
 interface IIsEmulator {

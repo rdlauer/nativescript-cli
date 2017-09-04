@@ -61,7 +61,7 @@ export class PluginsService implements IPluginsService {
 			await this.executeForAllInstalledPlatforms(action, projectData);
 
 			try {
-				await this.$pluginVariablesService.savePluginVariablesInProjectFile(pluginData, projectData);
+				await this.$pluginVariablesService.savePluginVariablesInProjectFile(pluginData, projectData.projectDir);
 			} catch (err) {
 				// Revert package.json
 				this.$projectDataService.removeNSProperty(projectData.projectDir, this.$pluginVariablesService.getPluginVariablePropertyName(pluginData.name));
@@ -84,7 +84,7 @@ export class PluginsService implements IPluginsService {
 			await platformData.platformProjectService.removePluginNativeCode(pluginData, projectData);
 		};
 
-		this.$pluginVariablesService.removePluginVariablesFromProjectFile(pluginName.toLowerCase(), projectData);
+		this.$pluginVariablesService.removePluginVariablesFromProjectFile(pluginName.toLowerCase(), projectData.projectDir);
 		await this.executeForAllInstalledPlatforms(removePluginNativeCodeAction, projectData);
 
 		await this.executeNpmCommand(PluginsService.UNINSTALL_COMMAND_NAME, pluginName, projectData);
