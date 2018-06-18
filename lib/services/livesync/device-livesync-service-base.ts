@@ -42,7 +42,7 @@ export abstract class DeviceLiveSyncServiceBase {
 	public async finalizeSync(liveSyncInfo: ILiveSyncResultInfo, projectData: IProjectData): Promise<IAndroidLivesyncSyncOperationResult> {
 		//implement in case a sync point for all remove/create operation is needed
 		return {
-			didRefresh:true,
+			didRefresh: true,
 			operationId: ""
 		};
 	}
