@@ -124,7 +124,7 @@ export class AndroidLivesyncTool implements IAndroidLivesyncTool {
 		return !!this.operationPromises[operationId];
 	}
 
-	public sendDoSyncOperation(doRefresh = true , timeout?: number, operationId?: string): Promise<IAndroidLivesyncSyncOperationResult> {
+	public sendDoSyncOperation(doRefresh = true, timeout?: number, operationId?: string): Promise<IAndroidLivesyncSyncOperationResult> {
 		const id = operationId || this.generateOperationIdentifier();
 		const operationPromise: Promise<IAndroidLivesyncSyncOperationResult> = new Promise((resolve: Function, reject: Function) => {
 			this.verifyActiveConnection(reject);
