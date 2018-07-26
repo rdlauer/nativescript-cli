@@ -39,6 +39,7 @@ const finishTracking = async (data?: ITrackingInformation) => {
 			// there might be various reasons, but most probably the parent is dead.
 			// However, there's no guarantee that we've received all messages. So wait some time before sending finish message to children.
 			setTimeout(async () => {
+				console.log("analytics broker");
 				await action();
 			}, 1000);
 		}

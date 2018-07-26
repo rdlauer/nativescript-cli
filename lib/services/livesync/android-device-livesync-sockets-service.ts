@@ -43,6 +43,7 @@ export class AndroidDeviceSocketsLiveSyncService extends DeviceLiveSyncServiceBa
 			const doSyncPromise = this.livesyncTool.sendDoSyncOperation(doRefresh, null, operationId);
 
 			const syncInterval : NodeJS.Timer = setInterval(() => {
+				console.log("android sync interval");
 				if (this.livesyncTool.isOperationInProgress(operationId)) {
 					this.$logger.info("Sync operation in progress...");
 				}

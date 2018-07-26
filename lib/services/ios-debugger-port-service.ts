@@ -25,6 +25,7 @@ export class IOSDebuggerPortService implements IIOSDebuggerPortService {
 			let retryCount: number = 10;
 
 			const interval = setInterval(() => {
+				console.log("ios debugger interval");
 				let port = this.getPortByKey(key);
 				if (port || retryCount === 0) {
 					clearInterval(interval);
@@ -71,6 +72,7 @@ export class IOSDebuggerPortService implements IIOSDebuggerPortService {
 		this.$iOSNotification.on(ATTACH_REQUEST_EVENT_NAME, (data: IIOSDebuggerPortData) => {
 			this.$logger.trace(ATTACH_REQUEST_EVENT_NAME, data);
 			const timer = setTimeout(() => {
+				console.log("ios debugger");
 				this.clearTimeout(data);
 				if (!this.getPortByKey(`${data.deviceId}${data.appId}`)) {
 					this.$logger.warn(`NativeScript debugger was not able to get inspector socket port on device ${data.deviceId} for application ${data.appId}.`);

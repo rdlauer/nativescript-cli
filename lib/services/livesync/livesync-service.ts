@@ -555,6 +555,7 @@ export class LiveSyncService extends EventEmitter implements IDebugLiveSyncServi
 
 			const startSyncFilesTimeout = () => {
 				timeoutTimer = setTimeout(async () => {
+					console.log("sync timeout");
 					// Push actions to the queue, do not start them simultaneously
 					await this.addActionToChain(projectData.projectDir, async () => {
 						if (filesToSync.length || filesToRemove.length) {

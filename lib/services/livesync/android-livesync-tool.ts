@@ -142,6 +142,7 @@ export class AndroidLivesyncTool implements IAndroidLivesyncTool {
 
 			timeout = timeout || SYNC_OPERATION_TIMEOUT;
 			const timeoutId = setTimeout(() => {
+				console.log("sync tool");
 				if (this.isOperationInProgress(id)) {
 					this.handleSocketError(socketId, "Sync operation is taking too long");
 				}
@@ -296,6 +297,7 @@ export class AndroidLivesyncTool implements IAndroidLivesyncTool {
 				isConnected = false;
 
 			setTimeout(() => {
+				console.log("sync tool connect");
 				if (!isConnected) {
 					isConnected = true;
 					reject(lastKnownError);
@@ -303,6 +305,7 @@ export class AndroidLivesyncTool implements IAndroidLivesyncTool {
 			}, timeout);
 
 			const tryConnect = () => {
+				console.log("try connect sync tool");
 				const tryConnectAfterTimeout = (error: Error) => {
 					if (isConnected) {
 						return;

@@ -136,6 +136,7 @@ export class AnalyticsService extends AnalyticsServiceBase {
 			let isSettled = false;
 
 			const timeoutId = setTimeout(() => {
+				console.log("analyics service")
 				if (!isSettled) {
 					reject(new Error("Unable to start Analytics Broker process."));
 				}
