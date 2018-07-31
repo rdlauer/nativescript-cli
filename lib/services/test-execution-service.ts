@@ -1,6 +1,7 @@
 import * as constants from "../constants";
 import * as path from 'path';
 import * as os from 'os';
+import { AndroidLiveSyncService } from "./livesync/android-livesync-service";
 
 interface IKarmaConfigOptions {
 	debugBrk: boolean;
@@ -26,7 +27,8 @@ class TestExecutionService implements ITestExecutionService {
 		private $errors: IErrors,
 		private $debugService: IDebugService,
 		private $devicesService: Mobile.IDevicesService,
-		private $childProcess: IChildProcess) {
+		private $childProcess: IChildProcess,
+		private $mobileHelper: Mobile.IMobileHelper) {
 	}
 
 	public platform: string;
@@ -147,6 +149,33 @@ class TestExecutionService implements ITestExecutionService {
 		});
 	}
 
+	private getDeviceDescriptor(device: Mobile.IDevice, projectData: IProjectData) {
+		const info: ILiveSyncDeviceInfo = {
+			identifier: device.deviceInfo.identifier,
+			buildAction: async (): Promise<string> => {
+				const buildConfig: IBuildConfig = {
+					buildForDevice: !device.isEmulator,
+					projectDir: this.$options.path,
+					clean: this.$options.clean,
+					teamId: this.$options.teamId,
+					device: this.$options.device,
+					provision: this.$options.provision,
+					release: this.$options.release,
+					keyStoreAlias: this.$options.keyStoreAlias,
+					keyStorePath: this.$options.keyStorePath,
+					keyStoreAliasPassword: this.$options.keyStoreAliasPassword,
+					keyStorePassword: this.$options.keyStorePassword
+				};
+
+				const pathToBuildResult = await this.$platformService.buildPlatform(device.deviceInfo.platform, buildConfig, projectData);
+				return pathToBuildResult;
+			},
+			debugOptions: this.$options,
+		};
+
+		return info ;
+	}
+
 	public async startKarmaServer(platform: string, projectData: IProjectData, projectFilesConfig: IProjectFilesConfig): Promise<void> {
 		platform = platform.toLowerCase();
 		this.platform = platform;
@@ -165,6 +194,46 @@ class TestExecutionService implements ITestExecutionService {
 			emulator: this.$options.emulator
 		});
 
+		const liveSyncInfo: ILiveSyncInfo = {
+			projectDir: projectData.projectDir,
+			skipWatcher: !this.$options.watch || this.$options.justlaunch,
+			watchAllFiles: this.$options.syncAllFiles,
+			bundle: !!this.$options.bundle,
+			release: this.$options.release,
+			env: this.$options.env,
+			timeout: this.$options.timeout
+		};
+
+		const platformLowerCase = this.platform && this.platform.toLowerCase();
+		const devices = this.$devicesService.getDeviceInstances()
+			.filter(d => !platformLowerCase || d.deviceInfo.platform.toLowerCase() === platformLowerCase);
+
+		for (let device of devices) {
+			if (!this.$mobileHelper.isAndroidPlatform(device.deviceInfo.platform)) {
+				continue;
+			}
+
+			const platformData = this.$platformsData.getPlatformData(device.deviceInfo.platform, projectData);
+			const frameworkVersion = platformData.platformProjectService.getFrameworkVersion(projectData);
+
+			if (AndroidLiveSyncService.isSocketLiveSync(frameworkVersion)) {
+				await this.$liveSyncService.ensureLatestAppPackageIsInstalledOnDevice({
+					device,
+					preparedPlatforms: [],
+					rebuiltInformation: [],
+					projectData,
+					deviceBuildInfoDescriptor: this.getDeviceDescriptor(device, projectData),
+					settings: this.$liveSyncService.getDefaultLatestAppPackageInstalledSettings(),
+					liveSyncData: liveSyncInfo,
+					bundle: !!this.$options.bundle,
+					release: this.$options.release,
+					env: this.$options.env
+				});
+
+				await device.applicationManager.startApplication({ projectName: projectData.projectName, appId: projectData.projectId });
+			}
+		}
+		
 		const karmaConfig = this.getKarmaConfiguration(platform, projectData),
 			karmaRunner = this.$childProcess.fork(path.join(__dirname, "karma-execution.js")),
 			launchKarmaTests = async (karmaData: any) => {
@@ -214,48 +283,7 @@ class TestExecutionService implements ITestExecutionService {
 					const debugData = this.getDebugData(platform, projectData, deployOptions);
 					await this.$debugService.debug(debugData, this.$options);
 				} else {
-					const devices = this.$devicesService.getDeviceInstances();
-					// Now let's take data for each device:
-					const platformLowerCase = this.platform && this.platform.toLowerCase();
-					const deviceDescriptors: ILiveSyncDeviceInfo[] = devices.filter(d => !platformLowerCase || d.deviceInfo.platform.toLowerCase() === platformLowerCase)
-						.map(d => {
-							const info: ILiveSyncDeviceInfo = {
-								identifier: d.deviceInfo.identifier,
-								buildAction: async (): Promise<string> => {
-									const buildConfig: IBuildConfig = {
-										buildForDevice: !d.isEmulator,
-										projectDir: this.$options.path,
-										clean: this.$options.clean,
-										teamId: this.$options.teamId,
-										device: this.$options.device,
-										provision: this.$options.provision,
-										release: this.$options.release,
-										keyStoreAlias: this.$options.keyStoreAlias,
-										keyStorePath: this.$options.keyStorePath,
-										keyStoreAliasPassword: this.$options.keyStoreAliasPassword,
-										keyStorePassword: this.$options.keyStorePassword
-									};
-
-									await this.$platformService.buildPlatform(d.deviceInfo.platform, buildConfig, projectData);
-									const pathToBuildResult = await this.$platformService.lastOutputPath(d.deviceInfo.platform, buildConfig, projectData);
-									return pathToBuildResult;
-								},
-								debugOptions: this.$options
-							};
-
-							return info;
-						});
-
-					const liveSyncInfo: ILiveSyncInfo = {
-						projectDir: projectData.projectDir,
-						skipWatcher: !this.$options.watch || this.$options.justlaunch,
-						watchAllFiles: this.$options.syncAllFiles,
-						bundle: !!this.$options.bundle,
-						release: this.$options.release,
-						env: this.$options.env,
-						timeout: this.$options.timeout
-					};
-
+					const deviceDescriptors = devices.map(device => this.getDeviceDescriptor(device, projectData));
 					await this.$liveSyncService.liveSync(deviceDescriptors, liveSyncInfo);
 				}
 			};

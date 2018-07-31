@@ -359,7 +359,7 @@ export class LiveSyncService extends EventEmitter implements IDebugLiveSyncServi
 		this.$errors.failWithoutHelp(`Invalid platform ${platform}. Supported platforms are: ${this.$mobileHelper.platformNames.join(", ")}`);
 	}
 
-	private async ensureLatestAppPackageIsInstalledOnDevice(options: IEnsureLatestAppPackageIsInstalledOnDeviceOptions, nativePrepare?: INativePrepare): Promise<IAppInstalledOnDeviceResult> {
+	public async ensureLatestAppPackageIsInstalledOnDevice(options: IEnsureLatestAppPackageIsInstalledOnDeviceOptions, nativePrepare?: INativePrepare): Promise<IAppInstalledOnDeviceResult> {
 		const platform = options.device.deviceInfo.platform;
 		const appInstalledOnDeviceResult: IAppInstalledOnDeviceResult = { appInstalled: false };
 		if (options.preparedPlatforms.indexOf(platform) === -1) {
@@ -513,7 +513,7 @@ export class LiveSyncService extends EventEmitter implements IDebugLiveSyncServi
 		this.attachDeviceLostHandler();
 	}
 
-	private getDefaultLatestAppPackageInstalledSettings(): ILatestAppPackageInstalledSettings {
+	public getDefaultLatestAppPackageInstalledSettings(): ILatestAppPackageInstalledSettings {
 		return {
 			[this.$devicePlatformsConstants.Android]: {
 				[DeviceTypes.Device]: false,

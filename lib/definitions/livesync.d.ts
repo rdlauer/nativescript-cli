@@ -233,6 +233,8 @@ interface ILiveSyncService {
 	 * @returns {ILiveSyncDeviceInfo[]} Array of elements describing parameters used to start LiveSync on each device.
 	 */
 	getLiveSyncDeviceDescriptors(projectDir: string): ILiveSyncDeviceInfo[];
+	ensureLatestAppPackageIsInstalledOnDevice(options: IEnsureLatestAppPackageIsInstalledOnDeviceOptions, nativePrepare?: INativePrepare): Promise<IAppInstalledOnDeviceResult>;
+	getDefaultLatestAppPackageInstalledSettings(): ILatestAppPackageInstalledSettings;
 }
 
 /**
@@ -277,6 +279,7 @@ interface IDebugLiveSyncService extends ILiveSyncService {
 	 * @returns {Promise<IDebugInformation>} Full url and port where the frontend client can be connected.
 	 */
 	attachDebugger(settings: IAttachDebuggerOptions): Promise<IDebugInformation>;
+	ensureLatestAppPackageIsInstalledOnDevice(options: IEnsureLatestAppPackageIsInstalledOnDeviceOptions, nativePrepare?: INativePrepare): Promise<IAppInstalledOnDeviceResult>;
 }
 
 /**

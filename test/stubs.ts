@@ -589,6 +589,10 @@ export class LiveSyncServiceStub implements ILiveSyncService {
 	public getLiveSyncDeviceDescriptors(projectDir: string): ILiveSyncDeviceInfo[] {
 		return [];
 	}
+
+	public ensureLatestAppPackageIsInstalledOnDevice(options: IEnsureLatestAppPackageIsInstalledOnDeviceOptions, nativePrepare?: INativePrepare): Promise<IAppInstalledOnDeviceResult> {
+		
+	}
 }
 
 export class AndroidToolsInfoStub implements IAndroidToolsInfo {
