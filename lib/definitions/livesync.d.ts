@@ -161,6 +161,13 @@ interface ILiveSyncInfo extends IProjectDir, IEnvOptions, IBundle, IRelease, IOp
 	clean?: boolean;
 
 	/**
+	 * Defines if initial sync will be forced.
+	 * In case it is true, transfers all project's directory on device
+	 * In case it is false, transfers only changed files.
+	 */
+	force?: boolean;
+
+	/**
 	 * Defines the timeout in seconds {N} CLI will wait to find the inspector socket port from device's logs.
 	 * If not provided, defaults to 10seconds.
 	 */
@@ -318,11 +325,13 @@ interface IAttachDebuggerOptions extends IDebuggingAdditionalOptions, IEnableDeb
 }
 
 interface ILiveSyncWatchInfo extends IProjectDataComposition {
+	liveSyncDeviceInfo: ILiveSyncDeviceInfo;
 	filesToRemove: string[];
 	filesToSync: string[];
 	isReinstalled: boolean;
 	syncAllFiles: boolean;
 	useLiveEdit?: boolean;
+	force?: boolean;
 }
 
 interface ILiveSyncResultInfo {
@@ -336,9 +345,16 @@ interface IAndroidLiveSyncResultInfo extends ILiveSyncResultInfo, IAndroidLivesy
 
 interface IFullSyncInfo extends IProjectDataComposition {
 	device: Mobile.IDevice;
+	liveSyncDeviceInfo: ILiveSyncDeviceInfo;
 	watch: boolean;
 	syncAllFiles: boolean;
 	useLiveEdit?: boolean;
+	force?: boolean;
+}
+
+interface ITransferFilesOptions {
+	isFullSync: boolean;
+	force?: boolean;
 }
 
 interface IPlatformLiveSyncService {
@@ -378,7 +394,7 @@ interface INativeScriptDeviceLiveSyncService extends IDeviceLiveSyncServiceBase 
 	 * @param  {boolean} isFullSync Indicates if the operation is part of a fullSync
 	 * @return {Promise<Mobile.ILocalToDevicePathData[]>} Returns the ILocalToDevicePathData of all transfered files
 	 */
-	transferFiles(deviceAppData: Mobile.IDeviceAppData, localToDevicePaths: Mobile.ILocalToDevicePathData[], projectFilesPath: string, isFullSync: boolean): Promise<Mobile.ILocalToDevicePathData[]>;
+	transferFiles(deviceAppData: Mobile.IDeviceAppData, localToDevicePaths: Mobile.ILocalToDevicePathData[], projectFilesPath: string, projectData: IProjectData, liveSyncDeviceInfo: ILiveSyncDeviceInfo, options: ITransferFilesOptions): Promise<Mobile.ILocalToDevicePathData[]>;
 }
 
 interface IAndroidNativeScriptDeviceLiveSyncService extends INativeScriptDeviceLiveSyncService {
