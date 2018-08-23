@@ -526,6 +526,7 @@ interface ILiveSyncCommandHelperAdditionalOptions extends IBuildPlatformAction, 
 	 * @returns {string} The build output directory.
 	 */
 	getOutputDirectory?(options: IOutputDirectoryOptions): string;
+	syncToPreviewApp?: boolean;
 }
 
 interface ILiveSyncCommandHelper {
@@ -544,7 +545,7 @@ interface ILiveSyncCommandHelper {
 	 * @param {string} platform The platform to be validated.
 	 * @return {Promise<void>}
 	 */
-	validatePlatform(platform: string): Promise<void>;
+	validatePlatform(platform: string): Promise<IDictionary<IValidateOutput>>;
 
 	/**
 	 * Executes livesync operation. Meant to be called from within a command.
